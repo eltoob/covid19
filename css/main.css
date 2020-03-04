@@ -1,0 +1,81 @@
+h1 {
+    text-align: center;
+}
+
+.variables{
+    text-align: left;
+
+}
+
+
+.variable input {
+    width: 50px;
+}
+
+/* canvas {
+    display: block;
+    background: #444;
+    margin: 0 auto;
+} */
+
+.case {
+    border: 2px solid lightgray;
+    border-radius: 10px;
+    margin: 20px;
+    padding: 20px;
+    text-align: center;
+}
+.valueTitle {
+    font-size: 20px;
+}
+.valueTotal {
+    font-size: 40px;
+} 
+
+
+.controls {
+    display: block;
+    margin: 20px;
+    text-align: center;
+}
+  #container {
+    
+    background: white;
+      border: 1px solid #f00;
+    
+  }
+  
+  #game {
+  }
+  
+  #controls {
+
+    
+    background: white;
+      border: 1px solid #f00;
+  }
+  
+  #round {
+      padding: 5px;
+  }
+  
+  #buttons {
+      padding: 5px;
+  }
+  
+  #buttons button  {
+      width: 100%;
+  }
+
+  .variables {
+      margin-top: 20px;
+      /* width: 100px; */
+  }
+  .variables input {
+      width: 50px;
+      text-align: center;
+  }
+
+  .methodology {
+      margin-top: 20px;
+  }
