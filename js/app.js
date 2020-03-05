@@ -35,8 +35,8 @@ function Game(canvas, cfg) {
         infectedCellColor: "red",
         seaCellColor: "#cde6fe",
         incubationPeriod: 10,
-        contaminationProb: 0.2,
-        populationDensity: 0.3,
+        contaminationProb: 0.4,
+        populationDensity: 0.4,
         deathRatio: 0.03,
         suceptibleRatio: 1
     };
