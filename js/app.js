@@ -132,9 +132,9 @@ Game.prototype = {
 
         if (sickCount == 0 ) {
           if (recoveredCount > 0) {
+            game.updateGraph();
             alert("The disease was eradicated");
             game.randomize();
-
           }
           $("#run").click();
         }
