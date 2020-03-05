@@ -219,10 +219,6 @@ Game.prototype = {
         //    3 - Everyone moves
         for (x = 0; x < this.matrix.length; x++) {
             for (y = 0; y < this.matrix[x].length; y++) {
-              if (this.matrix[x][y] == -1) {
-                buffer[x][y] = -1;
-                // break
-              }
               if (this.matrix[x][y] > 0) {
                 // Step 1: If you are infected, you incubate
                 if(this.matrix[x][y] > 1 && this.matrix[x][y] < this.cfg.incubationPeriod) {
@@ -276,7 +272,7 @@ Game.prototype = {
     
     /**
      * Fills the matrix with a random pattern.
-     * The chance that a cell will be alive is at 30%.
+    
      */
     randomize: function() {
         for (var x = 0; x < this.matrix.length; x++) {
@@ -290,6 +286,13 @@ Game.prototype = {
             }
             
         }
+        this.round    = 0;
+        this.recoveredCount = 0;
+        this.sickCount = 0;
+        this.totalDeath = 0;
+        this.totalRecoveredTracker = []  
+        this.totalSuceptibleTracker = []
+        this.totalInfectedTracker = []
         
         this.matrix[128][26] = 2;
         this.matrix[9][32] = 2;
@@ -297,7 +300,6 @@ Game.prototype = {
         this.matrix[138][34] = 2;
         this.matrix[124][41] = 2;
         this.matrix[123][40] = 2;
-        this.matrix[this.cfg.cellsX - 1][this.cfg.cellsY - 1] = 2;
         this.draw(); 
     },
     
@@ -337,6 +339,16 @@ $("#run").click(function() {
   }
 });
 
+$("#rand").click(function() {
+  game.randomize();
+  if (timer) {
+    clearInterval(timer);
+    timer = undefined;
+    // $(this).text("Start");
+    
+  }
+});
+
 $(".variable").on("change", ()=>{
   game = new Game(document.getElementById("game"), {
     incubationPeriod: Number($("#incubationPeriod").val()),
@@ -348,27 +360,7 @@ $(".variable").on("change", ()=>{
 
 })
 
-// make a single step in the animation loop
-$("#step").click(function() {
-  if (timer === undefined) {
-    game.step();
-    $("#round span").text(game.round);
-  }
-});
 
-// clear the entire game board
-$("#clear").click(function() {
-  game.clear();
-  game.round = 0;
-  $("#round span").text(game.round);
-});
-
-// set a random pattern on the game board
-$("#rand").click(function() {
-  game.randomize();
-  game.round = 0;
-  $("#round span").text(game.round);
-});
 
 // register onclick on the canvas
 game.canvas.addEventListener("click", gameOnClick, false);
@@ -403,13 +395,17 @@ function gameOnClick(e) {
 function run() {
     
     game.step();
-    let confirmed = (game.recoveredCount + game.sickCount);
-    let recovered = game.recoveredCount;
-    $("#confirmedCases").text(formatNumberWithMetricPrefix(confirmed));
-    $("#recoveredCases").text(formatNumberWithMetricPrefix(recovered));
-    $("#totalDeath").text(formatNumberWithMetricPrefix(game.totalDeath));
-    
-    $("#round span").text(game.round);
 }
+
+setInterval(()=> {
+  let confirmed = (game.recoveredCount + game.sickCount);
+  let recovered = game.recoveredCount;
+  debugger;
+  $("#confirmedCases").text(formatNumberWithMetricPrefix(confirmed));
+  $("#recoveredCases").text(formatNumberWithMetricPrefix(recovered));
+  $("#totalDeath").text(formatNumberWithMetricPrefix(game.totalDeath));
+  
+  $("#round span").text(game.round);
+}, 200)
 
 game.randomize();
