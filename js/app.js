@@ -300,6 +300,7 @@ Game.prototype = {
         this.matrix[138][34] = 2;
         this.matrix[124][41] = 2;
         this.matrix[123][40] = 2;
+        
         this.draw(); 
     },
     
@@ -400,7 +401,6 @@ function run() {
 setInterval(()=> {
   let confirmed = (game.recoveredCount + game.sickCount);
   let recovered = game.recoveredCount;
-  debugger;
   $("#confirmedCases").text(formatNumberWithMetricPrefix(confirmed));
   $("#recoveredCases").text(formatNumberWithMetricPrefix(recovered));
   $("#totalDeath").text(formatNumberWithMetricPrefix(game.totalDeath));
