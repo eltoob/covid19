@@ -35,7 +35,7 @@ function Game(canvas, cfg) {
         infectedCellColor: "red",
         seaCellColor: "#cde6fe",
         incubationPeriod: 10,
-        contaminationProb: 0.4,
+        contaminationProb: 0.2,
         populationDensity: 0.4,
         deathRatio: 0.03,
         suceptibleRatio: 1
@@ -200,6 +200,15 @@ Game.prototype = {
         for (x = 0; x < buffer.length; x++) {
             buffer[x] = new Array(this.matrix[x].length);
         }
+        for (x = 0; x < this.matrix.length; x++) {
+          for (y = 0; y < this.matrix[x].length; y++) {
+            if (this.matrix[x][y] == -1) {
+              buffer[x][y] = -1
+            } else {
+              buffer[x][y] = 0;
+            }
+          }
+        }
         if (this.round % 10 == 0) {
           this.updateGraph();
         }
@@ -230,7 +239,8 @@ Game.prototype = {
                 // Step 3 Everybody moves
                 newX = x + Math.floor(Math.random() * 3) -1; 
                 newY = y + Math.floor(Math.random() * 3) -1;
-                if (newX >= 0 && newY >= 0 && newX < this.cfg.cellsX && newY < this.cfg.cellsY && this.matrix[newX][newY]==0 && buffer[newX][newY]==0) {
+                if (newX >= 0 && newY >= 0 && newX < this.cfg.cellsX && newY < this.cfg.cellsY && this.matrix[newX][newY]== 0 && buffer[newX][newY]== 0) {
+                  
                   buffer[newX][newY] = this.matrix[x][y];
                   // buffer[x][y] = false
                 } else {
