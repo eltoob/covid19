@@ -1,4 +1,5 @@
-
+const WORLD_POPULATION = 7 * 10**9
+const PROPORTION_OF_LAND = 0.39
 
 /**
  * Constructor for the Game of Life object
@@ -21,20 +22,23 @@ function Game(canvas, cfg) {
     this.totalInfectedTracker = []
     
     
+    
     // Merge of the default and delivered config.
     var defaults = {
         cellsX    : 160,
-        cellsY    : 80,
+        cellsY    : 106,
         cellSize  : 5,
         rules     : "23/3",
         gridColor : "#eee",
         cellColor : "#ccc",
         suceptibleCellColor: "green",
         infectedCellColor: "red",
+        seaCellColor: "#cde6fe",
         incubationPeriod: 10,
         contaminationProb: 0.2,
         populationDensity: 0.3,
         deathRatio: 0.03,
+        suceptibleRatio: 1
     };
     this.cfg = $.extend({}, defaults, cfg);
     
@@ -63,10 +67,16 @@ Game.prototype = {
         for (var x = 0; x < this.matrix.length; x++) {
             this.matrix[x] = new Array(this.cfg.cellsY);
             for (var y = 0; y < this.matrix[x].length; y++) {
-                this.matrix[x][y] = false;
+                this.matrix[x][y] = WORLD_MAP[y][x];
             }
         }
-        
+        this.matrix[128][26] = 2;
+        this.matrix[9][32] = 2;
+        this.matrix[136][37] = 2;
+        this.matrix[138][34] = 2;
+        this.matrix[124][41] = 2;
+        this.matrix[123][40] = 2;
+        this.total_people_on_map = this.cfg.populationDensity * this.cfg.cellsX * this.cfg.cellsY * PROPORTION_OF_LAND
         this.draw();
     },
     
@@ -113,6 +123,9 @@ Game.prototype = {
                     if (status >= this.cfg.incubationPeriod) {
                       recoveredCount += 1;
                     }
+                    if (status == -1) {
+                      color = this.cfg.seaCellColor;
+                    }
                     this.ctx.fillStyle = color;
                     this.ctx.fillRect(x * this.cfg.cellSize + 1,
                                       y * this.cfg.cellSize + 1,
@@ -122,7 +135,9 @@ Game.prototype = {
                 }
             }
         }
-        this.recoveredCount = recoveredCount;
+        recoveredCount = Math.floor(recoveredCount * WORLD_POPULATION * this.cfg.suceptibleRatio / this.total_people_on_map);
+        sickCount = Math.floor(sickCount * WORLD_POPULATION * this.cfg.suceptibleRatio / this.total_people_on_map)
+        this.recoveredCount = recoveredCount
         this.totalRecoveredTracker.push(recoveredCount);
 
         this.sickCount = sickCount;
@@ -133,8 +148,7 @@ Game.prototype = {
         if (sickCount == 0 ) {
           if (recoveredCount > 0) {
             game.updateGraph();
-            alert("The disease was eradicated");
-            game.randomize();
+            // game.randomize();
           }
           $("#run").click();
         }
@@ -196,7 +210,11 @@ Game.prototype = {
         //    3 - Everyone moves
         for (x = 0; x < this.matrix.length; x++) {
             for (y = 0; y < this.matrix[x].length; y++) {
-              if (this.matrix[x][y]) {
+              if (this.matrix[x][y] == -1) {
+                buffer[x][y] = -1;
+                // break
+              }
+              if (this.matrix[x][y] > 0) {
                 // Step 1: If you are infected, you incubate
                 if(this.matrix[x][y] > 1 && this.matrix[x][y] < this.cfg.incubationPeriod) {
                   this.matrix[x][y] += 1
@@ -212,9 +230,9 @@ Game.prototype = {
                 // Step 3 Everybody moves
                 newX = x + Math.floor(Math.random() * 3) -1; 
                 newY = y + Math.floor(Math.random() * 3) -1;
-                if (newX >= 0 && newY >= 0 && newX < this.cfg.cellsX && newY < this.cfg.cellsY && !this.matrix[newX][newY] && !buffer[newX][newY]) {
+                if (newX >= 0 && newY >= 0 && newX < this.cfg.cellsX && newY < this.cfg.cellsY && this.matrix[newX][newY]==0 && buffer[newX][newY]==0) {
                   buffer[newX][newY] = this.matrix[x][y];
-                  buffer[x][y] = false
+                  // buffer[x][y] = false
                 } else {
                   buffer[x][y] = this.matrix[x][y] 
                 }
@@ -253,9 +271,9 @@ Game.prototype = {
     randomize: function() {
         for (var x = 0; x < this.matrix.length; x++) {
             for (var y = 0; y < this.matrix[x].length; y++) {
-              if  (Math.random() < this.cfg.populationDensity) {
+              if  (Math.random() < this.cfg.populationDensity && this.matrix[x][y] >= 0) {
                 this.matrix[x][y] = 1;
-              } else {
+              } else if (this.matrix[x][y] >= 0) {
                 this.matrix[x][y] =  0;
               }
                 
@@ -263,7 +281,12 @@ Game.prototype = {
             
         }
         
-        this.matrix[0][0] = 2;
+        this.matrix[128][26] = 2;
+        this.matrix[9][32] = 2;
+        this.matrix[136][37] = 2;
+        this.matrix[138][34] = 2;
+        this.matrix[124][41] = 2;
+        this.matrix[123][40] = 2;
         this.matrix[this.cfg.cellsX - 1][this.cfg.cellsY - 1] = 2;
         this.draw(); 
     },
@@ -295,9 +318,7 @@ var game = new Game(document.getElementById("game"));
 $("#run").click(function() {
   
   if (timer === undefined) {
-    timer = setInterval(run, 80);
-
-    
+    timer = setInterval(run, 80)
     $(this).text("Stop");
   } else {
     clearInterval(timer);
@@ -364,6 +385,7 @@ function gameOnClick(e) {
     x = Math.floor(x/game.cfg.cellSize);
     y = Math.floor(y/game.cfg.cellSize);
     
+    
     game.toggleCell(x, y);
 }
 
@@ -373,9 +395,9 @@ function run() {
     game.step();
     let confirmed = (game.recoveredCount + game.sickCount);
     let recovered = game.recoveredCount;
-    $("#confirmedCases").text(confirmed)
-    $("#recoveredCases").text(recovered)
-    $("#totalDeath").text(game.totalDeath);
+    $("#confirmedCases").text(formatNumberWithMetricPrefix(confirmed));
+    $("#recoveredCases").text(formatNumberWithMetricPrefix(recovered));
+    $("#totalDeath").text(formatNumberWithMetricPrefix(game.totalDeath));
     
     $("#round span").text(game.round);
 }
