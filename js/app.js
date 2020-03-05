@@ -15,7 +15,10 @@ function Game(canvas, cfg) {
     this.round    = 0;
     this.recoveredCount = 0;
     this.sickCount = 0;
-    this.totalDeath = 0;  
+    this.totalDeath = 0;
+    this.totalRecoveredTracker = []  
+    this.totalSuceptibleTracker = []
+    this.totalInfectedTracker = []
     
     
     // Merge of the default and delivered config.
@@ -91,6 +94,7 @@ Game.prototype = {
         }
 
         this.ctx.stroke();
+        let suceptibleCount = 0
         
         // draw matrix
         for (x = 0; x < this.matrix.length; x++) {
@@ -100,6 +104,7 @@ Game.prototype = {
                     let color = this.cfg.cellColor
                     let status = this.matrix[x][y]; 
                     if (status == 1) {
+                      suceptibleCount += 1;
                       color = this.cfg.suceptibleCellColor
                     } else if (status > 1 && status < this.cfg.incubationPeriod) {
                       sickCount += 1;
@@ -118,10 +123,19 @@ Game.prototype = {
             }
         }
         this.recoveredCount = recoveredCount;
+        this.totalRecoveredTracker.push(recoveredCount);
+
         this.sickCount = sickCount;
+        this.totalInfectedTracker.push(sickCount);
+        this.totalSuceptibleTracker.push(suceptibleCount);
         this.totalDeath = Math.floor(recoveredCount * this.cfg.deathRatio);
 
         if (sickCount == 0 ) {
+          if (recoveredCount > 0) {
+            alert("The disease was eradicated");
+            game.randomize();
+
+          }
           $("#run").click();
         }
     },
@@ -149,6 +163,17 @@ Game.prototype = {
       
       return count;
   },
+
+    updateGraph: function() {
+      this.totalSuceptibleTracker.shift()
+      this.totalRecoveredTracker.shift()
+      this.totalInfectedTracker.shift()
+      myChart.data.labels = [ ...Array(this.round).keys() ];
+      
+      
+      myChart.data.datasets[0].data = this.totalInfectedTracker;
+      myChart.update();
+    },
     
     /**
      * Calculates the new state by applying the rules.
@@ -161,7 +186,9 @@ Game.prototype = {
         for (x = 0; x < buffer.length; x++) {
             buffer[x] = new Array(this.matrix[x].length);
         }
-        
+        if (this.round % 10 == 0) {
+          this.updateGraph();
+        }
         // calculate one step
         // 3 things happen here
         //    1 - If you are infected you incubate
@@ -193,6 +220,8 @@ Game.prototype = {
                 }
               }
             }
+
+        
         }
         
         // flip buffers

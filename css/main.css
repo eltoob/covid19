@@ -32,6 +32,11 @@ h1 {
     font-size: 40px;
 } 
 
+.note {
+    font-size: 12px;
+    text-align: right;
+}
+
 
 .controls {
     display: block;
@@ -78,4 +83,24 @@ h1 {
 
   .methodology {
       margin-top: 20px;
+  }
+  .green {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: green;
+  }
+
+  .red {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: red;
+  }
+
+  .lightgray {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: lightgray;
   }
