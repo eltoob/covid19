@@ -104,3 +104,6 @@ h1 {
     display: inline-block;
     background-color: lightgray;
   }
+  .money {
+      margin-top: 10px;
+  }
